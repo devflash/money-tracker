@@ -4,6 +4,8 @@ import Layout from './Components/Layout';
 import Dashboard from './Components/Dashboard';
 import Login from './Components/Login';
 import SignUp from './Components/SignUp';
+import { MoneyTrackerContext } from './context';
+
 function App() {
   const router = createBrowserRouter([
     {
@@ -16,19 +18,21 @@ function App() {
         },
         {
           path: 'login',
-          element: <Login />,  
+          element: <Login />,
         },
         {
           path: 'signUp',
-          element: <SignUp />,  
+          element: <SignUp />,
         },
       ],
     },
   ]);
   return (
-    <div className="App">
-      <RouterProvider router={router} />
-    </div>
+    <MoneyTrackerContext>
+      <div className="App">
+        <RouterProvider router={router} />
+      </div>
+    </MoneyTrackerContext>
   );
 }
 
