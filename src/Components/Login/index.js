@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../../context';
 const wrapper = css`
   width: 90%;
   max-width: 550px;
@@ -41,6 +41,7 @@ const initialState = {
 
 const Login = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const [state, dispatch] = useReducer(
     (state, newState) => ({
@@ -79,6 +80,7 @@ const Login = () => {
     const isError = validateInput();
     if (!isError) {
       console.log('cool');
+      auth.setAuth({ email: 'sample@gmail.com', displayName: 'Mrugesh' });
     }
   };
 
