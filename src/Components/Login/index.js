@@ -5,6 +5,9 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/config';
+
 const wrapper = css`
   width: 90%;
   max-width: 550px;
@@ -41,7 +44,7 @@ const initialState = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const appAuth = useAuth();
 
   const [state, dispatch] = useReducer(
     (state, newState) => ({
@@ -76,11 +79,25 @@ const Login = () => {
     dispatch({ [name]: value, [`${name}ValidationErr`]: '' });
   };
 
-  const authenticateUser = () => {
+  const authenticateUser = async () => {
     const isError = validateInput();
     if (!isError) {
-      console.log('cool');
-      auth.setAuth({ email: 'sample@gmail.com', displayName: 'Mrugesh' });
+      try {
+        const response = await signInWithEmailAndPassword(
+          auth,
+          state.email,
+          state.password
+        );
+        if (response.user) {
+          appAuth.setAuth({
+            email: response?.user?.email,
+            displayName: response?.user?.displayName,
+          });
+          navigate('/');
+        }
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   };
 
@@ -109,7 +126,7 @@ const Login = () => {
           required
           name="password"
           type="password"
-          id="email-address"
+          id="password"
           label="Password"
           variant="outlined"
           sx={inputField}

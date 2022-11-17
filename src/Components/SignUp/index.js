@@ -4,6 +4,10 @@ import { useReducer } from 'react';
 import { css } from '@emotion/react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { auth, db } from '../../firebase/config';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useAuth } from '../../context';
 
 const wrapper = css`
   width: 90%;
@@ -45,6 +49,7 @@ const initialState = {
   passwordValidationErr: '',
 };
 const SignUp = () => {
+  const Moneyauth = useAuth();
   const [state, dispatch] = useReducer(
     (state, newState) => ({
       ...state,
@@ -90,10 +95,33 @@ const SignUp = () => {
     dispatch({ [name]: value, [`${name}ValidationErr`]: '' });
   };
 
-  const createAccount = () => {
+  const createAccount = async () => {
     const isError = validateInput();
     if (!isError) {
-      console.log('cool');
+      try {
+        const response = await createUserWithEmailAndPassword(
+          auth,
+          state.email,
+          state.password
+        );
+        if (!response) {
+          throw new Error('Unable to complete the request.');
+        }
+        await updateProfile(auth.currentUser, {
+          displayName: `${state.firstName} ${state.lastName}`,
+        });
+        Moneyauth.setAuth({
+          email: response.user.email,
+          displayName: response.user.displayName,
+        });
+
+        await setDoc(doc(db, 'users', response.user.uid), {
+          email: state.email,
+          displayName: response.user.displayName,
+        });
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   };
 
